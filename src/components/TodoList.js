@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import TodosContext from '../context';
+import axios from 'axios';
 
 export default function () {
 
@@ -19,7 +20,12 @@ export default function () {
               <li key={todo.id} className="flex border-black border-dashed border-2 my-2 py-4 items-center">
                 <span
                   className={`cursor-pointer flex-1 ml-12 ${todo.complete && 'line-through text-grey-darkest'}`}
-                  onDoubleClick={() => dispatch({ type: 'TOGGLE_TODO', payload: todo })}
+                  onDoubleClick={async () => {
+                    const response = await axios.patch(`https://hooks-api.jsvanegas.now.sh/todos/${todo.id}`, {
+                      complete: !todo.complete
+                    });
+                    dispatch({ type: 'TOGGLE_TODO', payload: response.data })
+                  }}
                 >
                   {todo.text}
                 </span>
@@ -30,7 +36,13 @@ export default function () {
                     className="h-6"
                   />
                 </button>
-                <button onClick={() => dispatch({ type: 'REMOVE_TODO', payload: todo })}>
+                <button onClick={
+                  async () => {
+                    await axios.delete(`https://hooks-api.jsvanegas.now.sh/todos/${todo.id}`);
+                    dispatch({ type: 'REMOVE_TODO', payload: todo })
+                  }
+                }
+                >
                   <img
                     src="https://icon.now.sh/delete/8b0000"
                     alt="Delete Icon"
